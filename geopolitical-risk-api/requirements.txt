@@ -1,0 +1,126 @@
+# FastAPI and ASGI server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Data validation and settings
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# HTTP client for external API calls and news gathering
+aiohttp==3.9.1
+httpx==0.25.2
+requests==2.31.0
+
+# OpenAI API client
+openai==1.3.7
+
+# Optional: Anthropic Claude API (backup LLM)
+anthropic==0.7.7
+
+# News and web scraping (optional)
+newspaper3k==0.2.8
+beautifulsoup4==4.12.2
+feedparser==6.0.10
+
+# Text processing and analysis
+nltk==3.8.1
+textblob==0.17.1
+
+# Environment variable support
+python-dotenv==1.0.0
+
+# Date and time utilities
+python-dateutil==2.8.2
+
+# Geospatial calculations
+geopy==2.4.1
+
+# Data processing
+pandas==2.1.4
+numpy==1.25.2
+
+# Optional: Redis for caching
+redis==5.0.1
+aioredis==2.0.1
+
+# Optional: Database support
+# sqlalchemy==2.0.23
+# alembic==1.13.0
+
+# Rate limiting
+slowapi==0.1.9
+
+# Security and authentication
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+
+# JSON processing
+ujson==5.8.0
+
+# Async utilities
+asyncio-throttle==1.0.2
+
+# Testing dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-mock==3.12.0
+
+# Development tools
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+isort==5.12.0
+
+# Logging and monitoring
+structlog==23.2.0
+python-json-logger==2.0.7
+
+# Performance monitoring (optional)
+# prometheus-client==0.19.0
+
+# Documentation
+# mkdocs==1.5.3
+# mkdocs-material==9.4.8
+
+# Security
+cryptography>=42.0.0
+
+# Additional utilities
+python-multipart==0.0.6  # For form data
+email-validator==2.1.0   # For email validation if needed
+
+# Optional: Machine learning for sentiment analysis
+# scikit-learn==1.3.2
+# transformers==4.35.2
+
+# Optional: Advanced NLP
+# spacy==3.7.2
+
+# Time zone handling
+pytz==2023.3
+
+# Configuration validation
+validators==0.22.0
+
+# Retry utilities
+tenacity==8.2.3
+
+# URL parsing and validation
+yarl==1.9.4
+
+# Optional: Elasticsearch for advanced search
+# elasticsearch==8.11.0
+
+# Optional: Kafka for event streaming
+# aiokafka==0.8.11
+
+# Development server (already included in uvicorn[standard])
+# watchfiles==0.21.0
+
+# Optional: Sentry for error tracking
+# sentry-sdk[fastapi]==1.38.0
+
+# Optional: OpenTelemetry for observability
+# opentelemetry-api==1.21.0
+# opentelemetry-sdk==1.21.0
+# opentelemetry-instrumentation-fastapi==0.42b0
