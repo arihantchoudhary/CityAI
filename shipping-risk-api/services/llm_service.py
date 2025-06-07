@@ -86,6 +86,8 @@ class LLMService:
                 travel_days=travel_days
             )
             
+            logger.info(f"Sending prompt to OpenAI (length: {len(prompt)} chars)")
+            
             # Call OpenAI API
             response = await self.client.chat.completions.create(
                 model=self.model,
@@ -104,14 +106,24 @@ class LLMService:
                 timeout=self.settings.openai_request_timeout
             )
             
+            logger.info(f"OpenAI API call successful, response received")
+            
             # Parse the AI response
             ai_response = response.choices[0].message.content
-            return self._parse_ai_response(ai_response)
+            logger.info(f"AI response length: {len(ai_response)} chars")
+            logger.info(f"AI response preview: {ai_response[:200]}...")
+            
+            parsed_result = self._parse_ai_response(ai_response)
+            logger.info(f"Successfully parsed AI response with risk score: {parsed_result.get('risk_score', 'unknown')}")
+            return parsed_result
             
         except Exception as e:
             logger.error(f"LLM risk assessment failed: {str(e)}")
-            # Return fallback assessment
-            return self._fallback_risk_assessment(departure_weather, destination_weather)
+            logger.error(f"LLM error type: {type(e).__name__}")
+            # Return fallback assessment with error details
+            fallback = self._fallback_risk_assessment(departure_weather, destination_weather)
+            fallback["risk_description"] = f"[OpenAI API Error: {str(e)}] {fallback['risk_description']}"
+            return fallback
     
     def _get_system_prompt(self) -> str:
         """Get the system prompt that defines the AI's role and behavior"""
@@ -213,22 +225,38 @@ Focus on practical shipping risks and be specific about weather-related concerns
     def _parse_ai_response(self, ai_response: str) -> Dict[str, Any]:
         """Parse the AI response and extract structured data"""
         try:
+            logger.info(f"Parsing AI response: {ai_response[:300]}...")
+            
+            # Clean the response - sometimes AI adds extra text before/after JSON
+            ai_response = ai_response.strip()
+            
             # Try to find JSON in the response
             start_idx = ai_response.find('{')
             end_idx = ai_response.rfind('}') + 1
             
             if start_idx >= 0 and end_idx > start_idx:
                 json_str = ai_response[start_idx:end_idx]
+                logger.info(f"Extracted JSON string: {json_str}")
+                
                 parsed_response = json.loads(json_str)
+                logger.info(f"Successfully parsed JSON: {parsed_response}")
                 
                 # Validate the response structure
                 if self._validate_ai_response(parsed_response):
+                    logger.info("AI response validation passed")
                     return parsed_response
                 else:
+                    logger.error(f"AI response validation failed: {parsed_response}")
                     raise ValueError("Invalid response structure")
             else:
+                logger.error(f"No JSON found in AI response: {ai_response}")
                 raise ValueError("No JSON found in response")
                 
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {str(e)}")
+            logger.error(f"Failed to parse: {ai_response}")
+            # Attempt to extract information manually
+            return self._extract_fallback_response(ai_response)
         except Exception as e:
             logger.error(f"Failed to parse AI response: {str(e)}")
             logger.error(f"AI response was: {ai_response}")
@@ -240,17 +268,30 @@ Focus on practical shipping risks and be specific about weather-related concerns
         """Validate that the AI response has the required structure"""
         required_fields = ["risk_score", "risk_description", "weather_summary"]
         
-        if not all(field in response for field in required_fields):
+        # Check all required fields exist
+        missing_fields = [field for field in required_fields if field not in response]
+        if missing_fields:
+            logger.error(f"Missing required fields: {missing_fields}")
             return False
             
         # Validate risk score is an integer between 1-10
         risk_score = response.get("risk_score")
-        if not isinstance(risk_score, int) or not 1 <= risk_score <= 10:
+        if not isinstance(risk_score, int):
+            logger.error(f"Risk score is not an integer: {risk_score} (type: {type(risk_score)})")
+            return False
+            
+        if not 1 <= risk_score <= 10:
+            logger.error(f"Risk score out of range: {risk_score}")
             return False
             
         # Validate text fields are non-empty strings
         for field in ["risk_description", "weather_summary"]:
-            if not isinstance(response.get(field), str) or len(response[field].strip()) < 10:
+            value = response.get(field)
+            if not isinstance(value, str):
+                logger.error(f"Field {field} is not a string: {value} (type: {type(value)})")
+                return False
+            if len(value.strip()) < 10:
+                logger.error(f"Field {field} too short: {len(value)} chars")
                 return False
                 
         return True

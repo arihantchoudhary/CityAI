@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     
     # OpenAI Configuration
     openai_model: str = Field(
-        default="gpt-4",
+        default="gpt-4.1-mini",
         description="OpenAI model to use for risk assessment"
     )
     openai_temperature: float = Field(
@@ -47,7 +47,7 @@ class Settings(BaseSettings):
         description="Temperature setting for LLM (lower = more deterministic)"
     )
     openai_max_tokens: int = Field(
-        default=1000,
+        default=1500,
         description="Maximum tokens for LLM response"
     )
     openai_request_timeout: int = Field(

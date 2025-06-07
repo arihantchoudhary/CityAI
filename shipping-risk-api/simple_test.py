@@ -10,6 +10,7 @@ from datetime import date, timedelta
 
 # API endpoint
 BASE_URL = "http://localhost:8000"
+# BASE_URL = "https://shipping-risk-api.onrender.com"
 
 def test_health():
     """Test if the API is running"""

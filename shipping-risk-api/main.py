@@ -147,16 +147,37 @@ async def assess_shipping_risk(request: ShippingRiskRequest):
         # Step 4: Use LLM to assess risk based on all factors
         logger.info("Generating AI risk assessment")
         
-        risk_assessment = await llm_service.assess_shipping_risk(
-            departure_port=request.departure_port,
-            destination_port=request.destination_port,
-            departure_date=request.departure_date,
-            carrier_name=request.carrier_name,
-            goods_type=request.goods_type,
-            departure_weather=departure_weather,
-            destination_weather=destination_weather,
-            travel_days=travel_days
-        )
+        try:
+            risk_assessment = await llm_service.assess_shipping_risk(
+                departure_port=request.departure_port,
+                destination_port=request.destination_port,
+                departure_date=request.departure_date,
+                carrier_name=request.carrier_name,
+                goods_type=request.goods_type,
+                departure_weather=departure_weather,
+                destination_weather=destination_weather,
+                travel_days=travel_days
+            )
+            logger.info(f"LLM risk assessment completed successfully: score={risk_assessment.get('risk_score', 'unknown')}")
+            
+            # Check if it's a fallback assessment
+            risk_desc = risk_assessment.get('risk_description', '')
+            if '[Fallback Assessment]' in risk_desc or '[OpenAI API Error:' in risk_desc:
+                logger.warning("LLM service returned fallback assessment instead of OpenAI assessment")
+                logger.warning(f"Fallback reason: {risk_desc[:200]}...")
+            
+        except Exception as llm_error:
+            logger.error(f"LLM service call failed in API endpoint: {str(llm_error)}")
+            logger.error(f"LLM error type: {type(llm_error).__name__}")
+            import traceback
+            logger.error(f"LLM traceback: {traceback.format_exc()}")
+            
+            # Create manual fallback if LLM service completely fails
+            risk_assessment = {
+                "risk_score": 5,
+                "risk_description": f"[API Endpoint Error] LLM service failed: {str(llm_error)}",
+                "weather_summary": f"Weather data available but AI analysis failed. Departure: {departure_weather.condition}, Destination: {destination_weather.condition}"
+            }
         
         # Step 5: Build response
         response = ShippingRiskResponse(
