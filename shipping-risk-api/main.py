@@ -205,10 +205,12 @@ async def search_ports(query: str, limit: int = 10):
 
 if __name__ == "__main__":
     # For development only - use proper ASGI server for production
+    import os
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True,
+        port=port,
+        reload=False,  # Disable reload in production
         log_level="info"
     )
