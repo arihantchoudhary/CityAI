@@ -244,7 +244,8 @@ def test_additional_routes():
 
 def main():
     """Main test function"""
-    api_url = "http://localhost:8001"
+    # api_url = "http://localhost:8001"
+    api_url = "https://geopolitical-risk-api.onrender.com"
     
     # Check if custom URL provided
     if len(sys.argv) > 1:
