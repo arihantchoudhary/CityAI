@@ -10,7 +10,8 @@ import time
 from datetime import datetime, timedelta
 
 # Configuration
-API_BASE_URL = "http://localhost:8000"  # Change this to your Render URL when deployed
+# API_BASE_URL = "http://localhost:8000"  # Change this to your Render URL when deployed
+API_BASE_URL = "https://mitigation-api.onrender.com"
 # Example: API_BASE_URL = "https://your-app-name.onrender.com"
 
 def print_section(title):
