@@ -93,6 +93,8 @@ class LLMService:
             
             logger.info(f"Sending geopolitical assessment prompt to OpenAI (length: {len(prompt)} chars)")
             
+
+
             # Call OpenAI API
             response = await self.client.chat.completions.create(
                 model=self.model,
@@ -359,101 +361,101 @@ Focus on actionable intelligence and be specific about current threats and polit
                 
         return True
     
-    def _extract_fallback_response(self, ai_response: str) -> Dict[str, Any]:
-        """Extract risk assessment info when JSON parsing fails"""
-        # Simple keyword-based extraction as fallback
-        risk_score = 5  # Default medium risk
+    # def _extract_fallback_response(self, ai_response: str) -> Dict[str, Any]:
+    #     """Extract risk assessment info when JSON parsing fails"""
+    #     # Simple keyword-based extraction as fallback
+    #     risk_score = 5  # Default medium risk
         
-        # Look for risk indicators in the response
-        response_lower = ai_response.lower()
+    #     # Look for risk indicators in the response
+    #     response_lower = ai_response.lower()
         
-        # High-risk geopolitical keywords
-        if any(word in response_lower for word in ["war", "conflict", "sanctions", "embargo", "terrorism", "piracy", "critical", "extreme"]):
-            risk_score = 9
-        elif any(word in response_lower for word in ["high", "significant", "tensions", "unstable", "threat"]):
-            risk_score = 7
-        elif any(word in response_lower for word in ["moderate", "medium", "caution", "elevated"]):
-            risk_score = 5
-        elif any(word in response_lower for word in ["low", "minor", "stable", "peaceful"]):
-            risk_score = 3
-        elif any(word in response_lower for word in ["minimal", "negligible", "secure"]):
-            risk_score = 1
+    #     # High-risk geopolitical keywords
+    #     if any(word in response_lower for word in ["war", "conflict", "sanctions", "embargo", "terrorism", "piracy", "critical", "extreme"]):
+    #         risk_score = 9
+    #     elif any(word in response_lower for word in ["high", "significant", "tensions", "unstable", "threat"]):
+    #         risk_score = 7
+    #     elif any(word in response_lower for word in ["moderate", "medium", "caution", "elevated"]):
+    #         risk_score = 5
+    #     elif any(word in response_lower for word in ["low", "minor", "stable", "peaceful"]):
+    #         risk_score = 3
+    #     elif any(word in response_lower for word in ["minimal", "negligible", "secure"]):
+    #         risk_score = 1
         
-        return {
-            "risk_score": risk_score,
-            "risk_description": f"AI assessment parsing failed. Raw response: {ai_response[:500]}...",
-            "geopolitical_summary": "Geopolitical analysis incomplete due to parsing error."
-        }
+    #     return {
+    #         "risk_score": risk_score,
+    #         "risk_description": f"AI assessment parsing failed. Raw response: {ai_response[:500]}...",
+    #         "geopolitical_summary": "Geopolitical analysis incomplete due to parsing error."
+    #     }
     
-    def _fallback_risk_assessment(
-        self, 
-        departure_country_risk: Dict[str, Any],
-        destination_country_risk: Dict[str, Any],
-        route_analysis: Dict[str, Any],
-        news_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Provide a basic risk assessment when AI service fails"""
+    # def _fallback_risk_assessment(
+    #     self, 
+    #     departure_country_risk: Dict[str, Any],
+    #     destination_country_risk: Dict[str, Any],
+    #     route_analysis: Dict[str, Any],
+    #     news_analysis: Dict[str, Any]
+    # ) -> Dict[str, Any]:
+    #     """Provide a basic risk assessment when AI service fails"""
         
-        # Simple rule-based assessment as fallback
-        risk_factors = []
-        risk_score = 1
+    #     # Simple rule-based assessment as fallback
+    #     risk_factors = []
+    #     risk_score = 1
         
-        # Check departure country risks
-        dept_stability = departure_country_risk.get('political_stability', 5)
-        if dept_stability <= 3:
-            risk_factors.append("Political instability at departure country")
-            risk_score += 3
-        elif dept_stability <= 5:
-            risk_factors.append("Moderate political concerns at departure")
-            risk_score += 1
+    #     # Check departure country risks
+    #     dept_stability = departure_country_risk.get('political_stability', 5)
+    #     if dept_stability <= 3:
+    #         risk_factors.append("Political instability at departure country")
+    #         risk_score += 3
+    #     elif dept_stability <= 5:
+    #         risk_factors.append("Moderate political concerns at departure")
+    #         risk_score += 1
             
-        # Check destination country risks
-        dest_stability = destination_country_risk.get('political_stability', 5)
-        if dest_stability <= 3:
-            risk_factors.append("Political instability at destination country")
-            risk_score += 3
-        elif dest_stability <= 5:
-            risk_factors.append("Moderate political concerns at destination")
-            risk_score += 1
+    #     # Check destination country risks
+    #     dest_stability = destination_country_risk.get('political_stability', 5)
+    #     if dest_stability <= 3:
+    #         risk_factors.append("Political instability at destination country")
+    #         risk_score += 3
+    #     elif dest_stability <= 5:
+    #         risk_factors.append("Moderate political concerns at destination")
+    #         risk_score += 1
         
-        # Check for sanctions
-        if 'sanctions' in departure_country_risk.get('sanctions_status', '').lower():
-            risk_factors.append("Sanctions affecting departure country")
-            risk_score += 4
-        if 'sanctions' in destination_country_risk.get('sanctions_status', '').lower():
-            risk_factors.append("Sanctions affecting destination country")
-            risk_score += 4
+    #     # Check for sanctions
+    #     if 'sanctions' in departure_country_risk.get('sanctions_status', '').lower():
+    #         risk_factors.append("Sanctions affecting departure country")
+    #         risk_score += 4
+    #     if 'sanctions' in destination_country_risk.get('sanctions_status', '').lower():
+    #         risk_factors.append("Sanctions affecting destination country")
+    #         risk_score += 4
             
-        # Check route chokepoints
-        chokepoints = route_analysis.get('chokepoints', [])
-        high_risk_chokepoints = ['suez canal', 'strait of hormuz', 'south china sea', 'malacca strait']
-        for chokepoint in chokepoints:
-            if any(hrcp in chokepoint.lower() for hrcp in high_risk_chokepoints):
-                risk_factors.append(f"High-risk chokepoint: {chokepoint}")
-                risk_score += 2
-                break
+    #     # Check route chokepoints
+    #     chokepoints = route_analysis.get('chokepoints', [])
+    #     high_risk_chokepoints = ['suez canal', 'strait of hormuz', 'south china sea', 'malacca strait']
+    #     for chokepoint in chokepoints:
+    #         if any(hrcp in chokepoint.lower() for hrcp in high_risk_chokepoints):
+    #             risk_factors.append(f"High-risk chokepoint: {chokepoint}")
+    #             risk_score += 2
+    #             break
         
-        # Check recent events
-        events = news_analysis.get('events', [])
-        if events:
-            high_severity_events = [e for e in events if e.get('relevance_score', 0) >= 7]
-            if high_severity_events:
-                risk_factors.append("High-impact recent geopolitical events")
-                risk_score += 2
+    #     # Check recent events
+    #     events = news_analysis.get('events', [])
+    #     if events:
+    #         high_severity_events = [e for e in events if e.get('relevance_score', 0) >= 7]
+    #         if high_severity_events:
+    #             risk_factors.append("High-impact recent geopolitical events")
+    #             risk_score += 2
         
-        # Cap the risk score at 10
-        risk_score = min(risk_score, 10)
+    #     # Cap the risk score at 10
+    #     risk_score = min(risk_score, 10)
         
-        # Generate description
-        if not risk_factors:
-            description = "No significant geopolitical risks identified. Standard security protocols recommended."
-        else:
-            description = f"Geopolitical concerns identified: {', '.join(risk_factors)}. Enhanced due diligence and monitoring recommended."
+    #     # Generate description
+    #     if not risk_factors:
+    #         description = "No significant geopolitical risks identified. Standard security protocols recommended."
+    #     else:
+    #         description = f"Geopolitical concerns identified: {', '.join(risk_factors)}. Enhanced due diligence and monitoring recommended."
         
-        geopolitical_summary = f"Route assessment: {len(chokepoints)} chokepoints, {len(events)} recent events analyzed. Countries: {departure_country_risk.get('country', 'Unknown')} -> {destination_country_risk.get('country', 'Unknown')}."
+    #     geopolitical_summary = f"Route assessment: {len(chokepoints)} chokepoints, {len(events)} recent events analyzed. Countries: {departure_country_risk.get('country', 'Unknown')} -> {destination_country_risk.get('country', 'Unknown')}."
         
-        return {
-            "risk_score": risk_score,
-            "risk_description": f"[Fallback Assessment] {description}",
-            "geopolitical_summary": geopolitical_summary
-        }
+    #     return {
+    #         "risk_score": risk_score,
+    #         "risk_description": f"[Fallback Assessment] {description}",
+    #         "geopolitical_summary": geopolitical_summary
+    #     }
