@@ -10,8 +10,7 @@ import time
 from datetime import datetime, timedelta
 
 # Configuration
-# API_BASE_URL = "http://localhost:8000"  # Change this to your Render URL when deployed
-API_BASE_URL = "https://mitigation-api.onrender.com"
+API_BASE_URL = "http://localhost:8002"  # Change this to your Render URL when deployed
 # Example: API_BASE_URL = "https://your-app-name.onrender.com"
 
 def print_section(title):
@@ -160,7 +159,33 @@ def test_risk_analysis():
                 for i, strategy in enumerate(strategies, 1):
                     print(f"\n  Strategy {i}: {strategy.get('strategy_type', 'Unknown')}")
                     print(f"    Priority: {strategy.get('priority', 'N/A')}")
+                    print(f"    Risk Reduction: {strategy.get('risk_reduction', 'N/A')}")
                     print(f"    Description: {strategy.get('description', 'N/A')}")
+                
+                # Extract and display risk reduction percentages
+                print(f"\n📊 RISK REDUCTION SUMMARY:")
+                total_risk_reduction = 0
+                reduction_count = 0
+                
+                for i, strategy in enumerate(strategies, 1):
+                    risk_reduction = strategy.get('risk_reduction', '')
+                    print(f"  Strategy {i}: {risk_reduction}")
+                    
+                    # Try to extract percentage numbers for summary
+                    import re
+                    percentages = re.findall(r'(\d+(?:\.\d+)?)%', risk_reduction)
+                    if percentages:
+                        # Take the average if there's a range like "20-40%"
+                        nums = [float(p) for p in percentages]
+                        avg_reduction = sum(nums) / len(nums)
+                        total_risk_reduction += avg_reduction
+                        reduction_count += 1
+                
+                if reduction_count > 0:
+                    avg_overall_reduction = total_risk_reduction / reduction_count
+                    print(f"\n📈 Average Risk Reduction per Strategy: {avg_overall_reduction:.1f}%")
+                    print(f"🎯 Potential Combined Risk Reduction: {min(total_risk_reduction, 85):.1f}%")
+                    print("   (Note: Combined effects may not be additive)")
             
             alternatives = result.get('alternative_routes', [])
             if alternatives:
@@ -169,6 +194,12 @@ def test_risk_analysis():
             timeline = result.get('timeline_recommendations')
             if timeline:
                 print(f"\nTimeline Recommendations: {timeline}")
+            
+            compliance = result.get('compliance_checks', [])
+            if compliance:
+                print(f"\n📋 Compliance Documents to Check:")
+                for i, doc in enumerate(compliance, 1):
+                    print(f"  {i}. {doc}")
             
             return True
             
